@@ -40,12 +40,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import com.puppycrawl.tools.checkstyle.api.Configuration;
+import com.puppycrawl.tools.checkstyle.api.LocalizedMessage;
 
 public class BaseCheckTestSupport {
     protected final ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -64,11 +66,6 @@ public class BaseCheckTestSupport {
             throws Exception {
         final DefaultConfiguration dc = createCheckerConfig(checkConfig);
         final Checker checker = new Checker();
-        // make sure the tests always run with default error messages (language-invariant)
-        // so the tests don't fail in supported locales like German
-        final Locale locale = Locale.ROOT;
-        checker.setLocaleCountry(locale.getCountry());
-        checker.setLocaleLanguage(locale.getLanguage());
         checker.setModuleClassLoader(Thread.currentThread().getContextClassLoader());
         checker.configure(dc);
         checker.addListener(new BriefUtLogger(stream));
@@ -362,15 +359,23 @@ public class BaseCheckTestSupport {
      * @param arguments  the arguments of message in 'messages.properties' file.
      */
     protected String getCheckMessage(String messageKey, Object... arguments) {
-        final Properties pr = new Properties();
-        try {
-            pr.load(getClass().getResourceAsStream("messages.properties"));
-        }
-        catch (IOException ex) {
-            return null;
-        }
-        final MessageFormat formatter = new MessageFormat(pr.getProperty(messageKey),
-                Locale.ROOT);
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("messages.properties", Locale.getDefault(),
+                Thread.currentThread().getContextClassLoader(), new LocalizedMessage.Utf8Control());
+
+        //final ResourceBundle resourceBundle = getBundle("messages.properties");
+        final String pattern = resourceBundle.getString(messageKey);
+        final MessageFormat formatter = new MessageFormat(pattern, Locale.ROOT);
         return formatter.format(arguments);
+
+//        final Properties pr = new Properties();
+//        try {
+//            pr.load(getClass().getResourceAsStream("messages.properties"));
+//        }
+//        catch (IOException ex) {
+//            return null;
+//        }
+//        final MessageFormat formatter = new MessageFormat(pr.getProperty(messageKey),
+//                Locale.ROOT);
+//        return formatter.format(arguments);
     }
 }

@@ -396,7 +396,7 @@ public final class LocalizedMessage
      *
      * @author <a href="mailto:nesterenko-aleksey@list.ru">Aleksey Nesterenko</a>
      */
-    protected static class Utf8Control extends Control {
+    public static class Utf8Control extends Control {
         @Override
         public ResourceBundle newBundle(String aBaseName, Locale aLocale, String aFormat,
                  ClassLoader aLoader, boolean aReload) throws IOException {

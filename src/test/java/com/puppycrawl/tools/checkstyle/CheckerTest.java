@@ -34,11 +34,13 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -770,12 +772,37 @@ public class CheckerTest extends BaseCheckTestSupport {
         checker.configure(checkerConfig);
         checker.addListener(new BriefUtLogger(stream));
 
+        System.out.println(Locale.getDefault());
+        String value = getCheckMessage(Checker.EXCEPTION_MSG, "java.lang.IndexOutOfBoundsException: test");
+        System.out.println(value);
+
         final String filePath = getPath("InputMain.java");
         final String[] expected = {
-            "0: Got an exception - java.lang.IndexOutOfBoundsException: test",
+                "0: " + getCheckMessage(Checker.EXCEPTION_MSG, "java.lang.IndexOutOfBoundsException: test"),
         };
-
         verify(checker, filePath, filePath, expected);
+    }
+
+    @Override
+    protected String getCheckMessage(String messageKey, Object... arguments) {
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("/com/puppycrawl/tools/checkstyle/messages", Locale.getDefault(),
+                Thread.currentThread().getContextClassLoader(), new LocalizedMessage.Utf8Control());
+
+        //final ResourceBundle resourceBundle = getBundle("messages.properties");
+        final String pattern = resourceBundle.getString(messageKey);
+        final MessageFormat formatter = new MessageFormat(pattern, Locale.ROOT);
+        return formatter.format(arguments);
+
+//        final Properties pr = new Properties();
+//        try {
+//            pr.load(getClass().getResourceAsStream("messages.properties"));
+//        }
+//        catch (IOException ex) {
+//            return null;
+//        }
+//        final MessageFormat formatter = new MessageFormat(pr.getProperty(messageKey),
+//                Locale.ROOT);
+//        return formatter.format(arguments);
     }
 
     private Checker createMockCheckerWithCacheForModule(

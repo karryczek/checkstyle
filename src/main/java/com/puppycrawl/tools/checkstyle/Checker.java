@@ -66,7 +66,7 @@ public class Checker extends AutomaticBean implements MessageDispatcher, RootMod
     private static final Log LOG = LogFactory.getLog(Checker.class);
 
     /** Message to use when an exception occurs and should be printed as a violation. */
-    private static final String EXCEPTION_MSG = "general.exception";
+    public static final String EXCEPTION_MSG = "general.exception";
 
     /** Maintains error count. */
     private final SeverityLevelCounter counter = new SeverityLevelCounter(
